@@ -31,6 +31,21 @@ Règles :
 7. Réponds dans la langue de la question (FR/EN) et garde un ton factuel mais empathique.
 """
 
+USER_STORY_PROMPT = """
+Tu es un expert en communication médicale qui crée des histoires accessibles pour aider les gens à comprendre.
+
+Crée une user story courte (2-3 phrases maximum) qui illustre la réponse de manière concrète et humaine.
+La user story doit :
+1. Présenter un personnage fictif mais réaliste
+2. Montrer une situation concrète liée à la question
+3. Illustrer l'information de manière accessible
+4. Rester factuelle et basée sur les données du contexte
+5. Être courte, engageante et facile à comprendre
+
+Exemple de format :
+"Marie, fumeuse depuis 15 ans, a vu les nouveaux paquets avec des images choquantes. Elle a commencé à y penser chaque fois qu'elle ouvrait son paquet, et après 3 semaines, elle a décidé de consulter son médecin pour arrêter."
+"""
+
 
 class ResponseGenerator(BaseResponseGenerator):
     def generate_response(
@@ -69,3 +84,33 @@ class ResponseGenerator(BaseResponseGenerator):
         user_message = "".join(message_parts)
         
         return invoke_ai(system_message=system_prompt, user_message=user_message)
+    
+    def generate_user_story(
+        self,
+        query: str,
+        response: str,
+        context: List[str],
+        factsbox_data: Optional[FactsBoxData] = None
+    ) -> str:
+        """
+        Generate a user story to help users better understand the information.
+        
+        Args:
+            query: The user's original question
+            response: The generated response
+            context: Context used for the response
+            factsbox_data: Optional FactsBox data for more specific stories
+            
+        Returns:
+            A short user story illustrating the information
+        """
+        context_text = "\n\n".join(context[:2])  # Use only first 2 context blocks
+        
+        user_message = (
+            f"<question>{query}</question>\n"
+            f"<reponse>{response}</reponse>\n"
+            f"<contexte>{context_text}</contexte>\n\n"
+            "Crée une user story courte (2-3 phrases) qui illustre cette information de manière concrète."
+        )
+        
+        return invoke_ai(system_message=USER_STORY_PROMPT, user_message=user_message)

@@ -89,6 +89,27 @@ class RAGPipeline:
             user_intent=user_intent,
             factsbox_data=factsbox_data
         )
+        
+        # Generate and display FactsBox summary if relevant data exists
+        if factsbox_data:
+            print("\n" + "="*60)
+            print("📊 FACTS BOX - Résumé des données pertinentes")
+            print("="*60)
+            self._display_factsbox_summary(factsbox_data, query)
+        
+        # Generate and display user story
+        print("\n" + "="*60)
+        print("👤 USER STORY - Pour mieux comprendre")
+        print("="*60)
+        user_story = self.response_generator.generate_user_story(
+            query=query,
+            response=response,
+            context=context_blocks,
+            factsbox_data=factsbox_data
+        )
+        print(user_story)
+        print("="*60 + "\n")
+        
         return response
 
     def evaluate(
@@ -161,6 +182,104 @@ class RAGPipeline:
             summary_parts.append(f"Sites: {sites}")
 
         return "\n".join(summary_parts)
+    
+    def _display_factsbox_summary(self, factsbox: FactsBoxData, query: str) -> None:
+        """Display a relevant summary of the FactsBox as a formatted table."""
+        
+        # Header
+        title = factsbox.title
+        if len(title) > 70:
+            title = title[:67] + "..."
+        
+        print()
+        print("╔" + "═" * 78 + "╗")
+        print(f"║ {title:^76} ║")
+        print("╠" + "═" * 78 + "╣")
+        
+        # Extract comparison data from additional_info
+        has_comparison = False
+        groupe_controle = None
+        groupe_intervention = None
+        
+        if factsbox.additional_info:
+            groupe_controle = factsbox.additional_info.get("Risque_Absolu_Groupe_Controle")
+            groupe_intervention = factsbox.additional_info.get("Risque_Absolu_Groupe_Intervention")
+            has_comparison = groupe_controle and groupe_intervention
+        
+        if has_comparison:
+            # Table format with comparison
+            print("║ " + " " * 30 + "│ Sans intervention │ Avec intervention ║")
+            print("╟" + "─" * 30 + "┼" + "─" * 19 + "┼" + "─" * 19 + "╢")
+            print(f"║ {'Résultat observé':<29} │ {str(groupe_controle)[:17]:^17} │ {str(groupe_intervention)[:17]:^17} ║")
+            
+            if factsbox.additional_info.get("Risque_Relatif"):
+                risque_rel = str(factsbox.additional_info["Risque_Relatif"])[:17]
+                print("╟" + "─" * 30 + "┴" + "─" * 19 + "┴" + "─" * 19 + "╢")
+                print(f"║ {'Différence':<29} │ {risque_rel:^37} ║")
+        
+        # Benefits section
+        if factsbox.benefits:
+            print("╠" + "═" * 78 + "╣")
+            print("║ ✅ BÉNÉFICES" + " " * 64 + "║")
+            print("╟" + "─" * 78 + "╢")
+            for benefit in factsbox.benefits[:5]:
+                # Wrap long text
+                if len(benefit) <= 76:
+                    print(f"║ • {benefit:<74} ║")
+                else:
+                    # Split into multiple lines
+                    words = benefit.split()
+                    line = ""
+                    for word in words:
+                        if len(line) + len(word) + 1 <= 74:
+                            line += word + " "
+                        else:
+                            print(f"║ • {line:<74} ║")
+                            line = "   " + word + " "
+                    if line.strip():
+                        print(f"║ • {line:<74} ║")
+        
+        # Side effects section
+        if factsbox.side_effects:
+            print("╠" + "═" * 78 + "╣")
+            print("║ ⚠️  EFFETS SECONDAIRES" + " " * 54 + "║")
+            print("╟" + "─" * 78 + "╢")
+            for effect in factsbox.side_effects[:5]:
+                # Wrap long text
+                if len(effect) <= 76:
+                    print(f"║ • {effect:<74} ║")
+                else:
+                    words = effect.split()
+                    line = ""
+                    for word in words:
+                        if len(line) + len(word) + 1 <= 74:
+                            line += word + " "
+                        else:
+                            print(f"║ • {line:<74} ║")
+                            line = "   " + word + " "
+                    if line.strip():
+                        print(f"║ • {line:<74} ║")
+        
+        # Additional info footer
+        if factsbox.additional_info:
+            footer_items = []
+            if "Population_Etudiee" in factsbox.additional_info:
+                pop = str(factsbox.additional_info["Population_Etudiee"])
+                if len(pop) > 35:
+                    pop = pop[:32] + "..."
+                footer_items.append(f"Population: {pop}")
+            if "Duree_Etude" in factsbox.additional_info:
+                footer_items.append(f"Durée: {factsbox.additional_info['Duree_Etude']}")
+            
+            if footer_items:
+                print("╠" + "═" * 78 + "╣")
+                footer_text = " | ".join(footer_items)
+                if len(footer_text) <= 76:
+                    print(f"║ ℹ️  {footer_text:<74} ║")
+                else:
+                    print(f"║ ℹ️  {footer_text[:74]:<74} ║")
+        
+        print("╚" + "═" * 78 + "╝")
     
     def _format_factsbox(self, factsbox: FactsBoxData) -> str:
         """Format FactsBox data into a readable context block."""

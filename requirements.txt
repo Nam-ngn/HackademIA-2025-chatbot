@@ -2,7 +2,7 @@
 pydantic>=2.0.0  # For data validation
 openai>=1.0.0  # For AI service integration
 lancedb==0.22.0
-docling>=2.32.0  # Updated for better Python 3.14 compatibility
+docling>=2.32.0  # Updated for better Python 3.13 compatibility
 requests>=2.32.0
 fastapi>=0.112.0
 uvicorn[standard]>=0.30.0
