@@ -35,7 +35,7 @@ class RAGPipeline:
         self.datastore.add_items(items)
         print(f"✅ Added {len(items)} items to the datastore.")
 
-    def process_query(self, query: str) -> str:
+    def process_query(self, query: str, return_metadata: bool = False):
         """
         Process user query with intent analysis and FactsBox interpretation.
         
@@ -109,6 +109,25 @@ class RAGPipeline:
         )
         print(user_story)
         print("="*60 + "\n")
+        
+        # Return with metadata if requested (for API)
+        if return_metadata:
+            factsbox_dict = None
+            if factsbox_data:
+                factsbox_dict = {
+                    "title": factsbox_data.title,
+                    "source": factsbox_data.source,
+                    "absolute_risks": factsbox_data.absolute_risks,
+                    "relative_risks": factsbox_data.relative_risks,
+                    "benefits": factsbox_data.benefits,
+                    "side_effects": factsbox_data.side_effects,
+                    "additional_info": factsbox_data.additional_info
+                }
+            return {
+                "response": response,
+                "factsbox": factsbox_dict,
+                "user_story": user_story
+            }
         
         return response
 
@@ -196,14 +215,20 @@ class RAGPipeline:
         print(f"║ {title:^76} ║")
         print("╠" + "═" * 78 + "╣")
         
-        # Extract comparison data from additional_info
+        # Extract comparison data from raw_data or absolute_risks
         has_comparison = False
         groupe_controle = None
         groupe_intervention = None
         
-        if factsbox.additional_info:
-            groupe_controle = factsbox.additional_info.get("Risque_Absolu_Groupe_Controle")
-            groupe_intervention = factsbox.additional_info.get("Risque_Absolu_Groupe_Intervention")
+        if factsbox.absolute_risks and len(factsbox.absolute_risks) >= 2:
+            # Use the structured absolute_risks data
+            groupe_controle = factsbox.absolute_risks[0]['value']
+            groupe_intervention = factsbox.absolute_risks[1]['value']
+            has_comparison = True
+        elif factsbox.raw_data:
+            # Fallback to raw data
+            groupe_controle = factsbox.raw_data.get("Risque_Absolu_Groupe_Controle")
+            groupe_intervention = factsbox.raw_data.get("Risque_Absolu_Groupe_Intervention")
             has_comparison = groupe_controle and groupe_intervention
         
         if has_comparison:
@@ -235,8 +260,14 @@ class RAGPipeline:
             print("╟" + "─" * 30 + "┼" + "─" * 19 + "┼" + "─" * 21 + "╢")
             print(f"║ {'Résultat observé':<29} │ {controle_display:^17} │ {intervention_display:^19} ║")
             
-            if factsbox.additional_info.get("Risque_Relatif"):
-                risque_rel = str(factsbox.additional_info["Risque_Relatif"])
+            # Get relative risk from relative_risks list or raw_data
+            risque_rel = None
+            if factsbox.relative_risks and len(factsbox.relative_risks) > 0:
+                risque_rel = factsbox.relative_risks[0]
+            elif factsbox.raw_data and factsbox.raw_data.get("Risque_Relatif"):
+                risque_rel = factsbox.raw_data["Risque_Relatif"]
+                
+            if risque_rel:
                 # Extract key info from relative risk
                 rel_display = risque_rel[:50] + "..." if len(risque_rel) > 50 else risque_rel
                 print("╟" + "─" * 30 + "┴" + "─" * 19 + "┴" + "─" * 21 + "╢")
@@ -286,17 +317,17 @@ class RAGPipeline:
                         print(f"║ • {line:<74} ║")
         
         # Additional info footer
-        if factsbox.additional_info:
-            footer_items = []
-            if "Population_Etudiee" in factsbox.additional_info:
-                pop = str(factsbox.additional_info["Population_Etudiee"])
+        footer_items = []
+        if factsbox.raw_data:
+            if "Population_Etudiee" in factsbox.raw_data:
+                pop = str(factsbox.raw_data["Population_Etudiee"])
                 if len(pop) > 35:
                     pop = pop[:32] + "..."
                 footer_items.append(f"Population: {pop}")
-            if "Duree_Etude" in factsbox.additional_info:
-                footer_items.append(f"Durée: {factsbox.additional_info['Duree_Etude']}")
+            if "Duree_Etude" in factsbox.raw_data:
+                footer_items.append(f"Durée: {factsbox.raw_data['Duree_Etude']}")
             
-            if footer_items:
+        if footer_items:
                 print("╠" + "═" * 78 + "╣")
                 footer_text = " | ".join(footer_items)
                 if len(footer_text) <= 76:
@@ -312,12 +343,14 @@ class RAGPipeline:
         
         if factsbox.absolute_risks:
             lines.append("## Risques Absolus")
-            lines.append(str(factsbox.absolute_risks))
+            for risk in factsbox.absolute_risks:
+                lines.append(f"- {risk['group']}: {risk['value']}")
             lines.append("")
         
         if factsbox.relative_risks:
             lines.append("## Risques Relatifs")
-            lines.append(str(factsbox.relative_risks))
+            for rr in factsbox.relative_risks:
+                lines.append(f"- {rr}")
             lines.append("")
         
         if factsbox.benefits:
@@ -334,7 +367,11 @@ class RAGPipeline:
         
         if factsbox.additional_info:
             lines.append("## Informations Supplémentaires")
-            for key, value in factsbox.additional_info.items():
-                lines.append(f"{key}: {value}")
+            if isinstance(factsbox.additional_info, dict):
+                for key, value in factsbox.additional_info.items():
+                    lines.append(f"{key}: {value}")
+            elif isinstance(factsbox.additional_info, list):
+                for info in factsbox.additional_info:
+                    lines.append(f"- {info}")
         
         return "\n".join(lines)

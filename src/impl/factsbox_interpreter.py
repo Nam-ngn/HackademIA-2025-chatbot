@@ -58,27 +58,48 @@ class FactsBoxInterpreter(BaseFactsBoxInterpreter):
             FactsBoxData object with structured, interpreted information
         """
         # Extract standard fields
-        title = factsbox_raw.get("title", "Information")
-        source = factsbox_raw.get("source", "unknown")
+        title = factsbox_raw.get("title", factsbox_raw.get("Nom", "Information"))
+        source = factsbox_raw.get("source", factsbox_raw.get("Source_Etude", "unknown"))
         
-        # Extract medical information if present
-        absolute_risks = self._extract_risks(factsbox_raw, "absolute")
-        relative_risks = self._extract_risks(factsbox_raw, "relative")
-        benefits = self._extract_list_field(factsbox_raw, "benefits", "bénéfices", "avantages")
-        side_effects = self._extract_list_field(factsbox_raw, "side_effects", "effets_secondaires", "effets indésirables")
+        # Extract absolute risks (control vs intervention groups)
+        absolute_risks = []
+        if "Risque_Absolu_Groupe_Controle" in factsbox_raw:
+            absolute_risks.append({
+                "group": "Groupe Contrôle",
+                "value": factsbox_raw["Risque_Absolu_Groupe_Controle"]
+            })
+        if "Risque_Absolu_Groupe_Intervention" in factsbox_raw:
+            absolute_risks.append({
+                "group": "Groupe Intervention",
+                "value": factsbox_raw["Risque_Absolu_Groupe_Intervention"]
+            })
+        
+        # Extract relative risks
+        relative_risks = []
+        if "Risque_Relatif" in factsbox_raw and factsbox_raw["Risque_Relatif"]:
+            rr_value = factsbox_raw["Risque_Relatif"]
+            if isinstance(rr_value, str):
+                relative_risks = [rr_value]
+            elif isinstance(rr_value, list):
+                relative_risks = rr_value
+        
+        # Extract benefits
+        benefits = self._extract_list_field(factsbox_raw, "Benefices", "benefits", "bénéfices", "avantages")
+        
+        # Extract side effects
+        side_effects = self._extract_list_field(factsbox_raw, "Effets_Secondaires", "side_effects", "effets_secondaires", "effets indésirables")
         
         # Extract additional information
-        additional_info = {}
-        for key, value in factsbox_raw.items():
-            if key not in ["title", "source", "absolute_risks", "relative_risks", 
-                          "benefits", "side_effects", "bénéfices", "effets_secondaires"]:
-                additional_info[key] = value
+        additional_info = []
+        for key in ["Population_Etudiee", "Duree_Etude", "Description", "Type_Traitement"]:
+            if key in factsbox_raw and factsbox_raw[key]:
+                additional_info.append(f"{key.replace('_', ' ')}: {factsbox_raw[key]}")
         
         return FactsBoxData(
             title=title,
             source=source,
-            absolute_risks=absolute_risks,
-            relative_risks=relative_risks,
+            absolute_risks=absolute_risks if absolute_risks else None,
+            relative_risks=relative_risks if relative_risks else None,
             benefits=benefits,
             side_effects=side_effects,
             additional_info=additional_info if additional_info else None,

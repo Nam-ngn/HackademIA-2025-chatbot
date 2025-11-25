@@ -9,11 +9,11 @@ class FactsBoxData:
     
     title: str  # Title of the FactsBox
     source: str  # Source identifier
-    absolute_risks: Optional[Dict[str, Any]] = None  # Absolute risk values
-    relative_risks: Optional[Dict[str, Any]] = None  # Relative risk values
+    absolute_risks: Optional[List[Dict[str, Any]]] = None  # List of absolute risk values by group
+    relative_risks: Optional[List[str]] = None  # List of relative risk descriptions
     benefits: Optional[List[str]] = None  # List of benefits
     side_effects: Optional[List[str]] = None  # List of side effects
-    additional_info: Optional[Dict[str, Any]] = None  # Other relevant information
+    additional_info: Optional[List[str]] = None  # List of additional information strings
     raw_data: Optional[Dict[str, Any]] = None  # Original data for reference
     
 

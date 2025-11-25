@@ -22,6 +22,8 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
     content: str
     duration_seconds: float
+    factsbox: dict = None
+    user_story: str = None
 
 
 class ErrorResponse(BaseModel):
@@ -114,12 +116,25 @@ def query(
     pipeline = get_pipeline()
     start = time.perf_counter()
     try:
-        answer = pipeline.process_query(payload.prompt)
+        result = pipeline.process_query(payload.prompt, return_metadata=True)
+        if isinstance(result, dict):
+            answer = result["response"]
+            factsbox = result.get("factsbox")
+            user_story = result.get("user_story")
+        else:
+            answer = result
+            factsbox = None
+            user_story = None
     except Exception as exc:  # pragma: no cover - surface error to caller
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     duration = time.perf_counter() - start
-    return QueryResponse(content=answer, duration_seconds=duration)
+    return QueryResponse(
+        content=answer,
+        duration_seconds=duration,
+        factsbox=factsbox,
+        user_story=user_story
+    )
 
 
 if __name__ == "__main__":

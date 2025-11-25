@@ -90,6 +90,71 @@
         color: #6b7280;
         margin-top: 8px;
       }
+
+      .factsbox {
+        margin-top: 24px;
+        padding: 20px;
+        border-radius: 12px;
+        background: #f0fdf4;
+        border: 2px solid #86efac;
+      }
+
+      .factsbox h3 {
+        margin-top: 0;
+        color: #15803d;
+        font-size: 1.25rem;
+      }
+
+      .factsbox-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .factsbox-table th,
+      .factsbox-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #d1d5db;
+      }
+
+      .factsbox-table th {
+        background: #dcfce7;
+        color: #15803d;
+        font-weight: 600;
+      }
+
+      .factsbox-list {
+        margin: 12px 0;
+      }
+
+      .factsbox-list li {
+        margin: 8px 0;
+        padding-left: 4px;
+      }
+
+      .user-story {
+        margin-top: 24px;
+        padding: 20px;
+        border-radius: 12px;
+        background: #f0fdf4;
+        border: 2px solid#86efac;
+        font-style: italic;
+      }
+
+      .user-story h3 {
+        margin-top: 0;
+        color: #15803d;
+        font-size: 1.25rem;
+      }
+
+      .user-story p {
+        color: #15803d;
+        line-height: 1.6;
+      }
     </style>
   </head>
   <body>
@@ -99,7 +164,7 @@
 
       <form id="chat-form">
         <label for="prompt" class="sr-only">Question</label>
-        <textarea id="prompt" name="prompt" placeholder="Ex. : Quelle association pour développer mes compétences sociales ?" required></textarea>
+        <textarea id="prompt" name="prompt" placeholder="Ex. : Quels sont les effets des avertissements (images) sur les paquets de cigarettes?" required></textarea>
         <button type="submit">Envoyer</button>
       </form>
 
@@ -113,6 +178,82 @@
       const textarea = document.getElementById("prompt");
       const responseBox = document.getElementById("response");
       const meta = document.getElementById("meta");
+
+      function renderFactsBox(factsbox) {
+        if (!factsbox) return "";
+
+        let html = `<div class="factsbox"><h3>${factsbox.title || "FactsBox"}</h3>`;
+
+        if (factsbox.source) {
+          html += `<p><strong>Source:</strong> ${factsbox.source}</p>`;
+        }
+
+        // Absolute risks table
+        if (factsbox.absolute_risks && factsbox.absolute_risks.length > 0) {
+          html += `<table class="factsbox-table">
+            <thead>
+              <tr>
+                <th>Groupe</th>
+                <th>Risque Absolu</th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+          factsbox.absolute_risks.forEach((risk) => {
+            html += `<tr><td>${risk.group}</td><td>${risk.value}</td></tr>`;
+          });
+
+          html += `</tbody></table>`;
+        }
+
+        // Relative risks
+        if (factsbox.relative_risks && factsbox.relative_risks.length > 0) {
+          html += `<p><strong>Risques relatifs:</strong></p><ul class="factsbox-list">`;
+          factsbox.relative_risks.forEach((rr) => {
+            html += `<li>${rr}</li>`;
+          });
+          html += `</ul>`;
+        }
+
+        // Benefits
+        if (factsbox.benefits && factsbox.benefits.length > 0) {
+          html += `<p><strong>Bénéfices:</strong></p><ul class="factsbox-list">`;
+          factsbox.benefits.forEach((b) => {
+            html += `<li>${b}</li>`;
+          });
+          html += `</ul>`;
+        }
+
+        // Side effects
+        if (factsbox.side_effects && factsbox.side_effects.length > 0) {
+          html += `<p><strong>Effets secondaires:</strong></p><ul class="factsbox-list">`;
+          factsbox.side_effects.forEach((se) => {
+            html += `<li>${se}</li>`;
+          });
+          html += `</ul>`;
+        }
+
+        // Additional info
+        if (factsbox.additional_info && factsbox.additional_info.length > 0) {
+          html += `<p><strong>Informations supplémentaires:</strong></p><ul class="factsbox-list">`;
+          factsbox.additional_info.forEach((info) => {
+            html += `<li>${info}</li>`;
+          });
+          html += `</ul>`;
+        }
+
+        html += `</div>`;
+        return html;
+      }
+
+      function renderUserStory(userStory) {
+        if (!userStory) return "";
+
+        return `<div class="user-story">
+          <h3>User Story</h3>
+          <p>${userStory}</p>
+        </div>`;
+      }
 
       async function submitPrompt(event) {
         event.preventDefault();
@@ -142,8 +283,25 @@
           }
 
           const payload = await res.json();
+
+          // Build complete output with FactsBox, User Story, and main response
+          let fullOutput = "";
+
+          // Add FactsBox if present
+          if (payload.factsbox) {
+            fullOutput += renderFactsBox(payload.factsbox);
+          }
+
+          // Add User Story if present
+          if (payload.user_story) {
+            fullOutput += renderUserStory(payload.user_story);
+          }
+
+          // Add main response
           const content = payload.content || "(réponse vide)";
-          responseBox.innerHTML = marked.parse(content);
+          fullOutput += `<div>${marked.parse(content)}</div>`;
+
+          responseBox.innerHTML = fullOutput;
           responseBox.hidden = false;
           meta.textContent = `⏱️ ${payload.duration_seconds?.toFixed(2) ?? "?"} s`;
         } catch (error) {
