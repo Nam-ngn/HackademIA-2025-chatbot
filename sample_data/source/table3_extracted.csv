@@ -1,0 +1,14 @@
+Outcome,TextOnly_No,TextOnly_Mean(SD),Pictorial_No,Pictorial_Mean(SD),Difference (95% CI),P_Value
+Thinking about warning message,1002,2.3 (1.2),995,3.0 (1.1),0.63 (0.53 to 0.73),<.001
+Fear elicited by warning,1078,1.8 (1.1),1070,2.4 (1.3),0.63 (0.53 to 0.74),<.001
+Negative affect,1078,1.8 (1.0),1070,2.4 (1.2),0.64 (0.55 to 0.73),<.001
+Thinking about the harms of smoking,1003,2.9 (1.1),995,3.1 (1.1),0.14 (0.04 to 0.24),.01
+Perceived likelihood of harm from smoking,1077,3.4 (0.9),1071,3.4 (0.9),0.03 (-0.05 to 0.10),.49
+Positive smoking reinforcement attitudes,1078,3.0 (1.2),1070,3.0 (1.1),-0.02 (-0.12 to 0.08),.71
+Negative smoking reinforcement attitudes,1078,3.7 (1.0),1070,3.7 (1.0),-0.03 (-0.12 to 0.05),.48
+Quit intentions,1078,2.5 (1.1),1071,2.7 (1.1),0.17 (0.08 to 0.26),<.001
+No. of conversations about warning in past week,1077,1.2 (2.1),1071,1.8 (2.5),0.63 (0.43 to 0.83),<.001
+No. of conversations about the health risks of smoking in past week,1077,1.2 (2.0),1071,1.6 (2.4),0.40 (0.22 to 0.59),<.001
+No. of conversations about quitting smoking in past week,1077,1.4 (2.1),1071,1.6 (2.4),0.26 (0.07 to 0.45),.01
+No. of times forgoing a cigarette in past week,1077,2.5 (2.8),1071,2.7 (2.9),0.25 (0.01 to 0.49),.04
+"Quit smoking for ≥7 days, % (SE)",1078,3.8 (0.6),1071,5.7 (0.7),1.9 (0.1 to 3.7),.04

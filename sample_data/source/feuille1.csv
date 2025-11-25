@@ -1,0 +1,41 @@
+Area of Interest,"
+ Measure","Text condition
+ (n=95)","Graphic
+ condition (n=97)"," p-value"
+" Whole ad
+ (1)",Dwell time,26.3 (5.2)," 25.2 (5.6)"," 0.16"
+" Whole ad
+ (1)"," Fixations"," 19.5 (20.6)",16.6 (19.3),0.32
+" Whole ad
+ (1)",Time to first view," 0.04 (0.09)"," 0.06 (0.16)"," 0.36"
+Warning area,Dwell time,8.2 (5.4)," 11.1 (4.7)"," <0.001"
+Warning area,Fixations,10.8 (13.1)," 9.6 (12.3)",0.51
+Warning area,Time to first view," 2.5 (2.1)"," 1.7 (1.2)"," <0.002"
+" Brand name
+ (2)",Dwell time,1.6 (1.3),1.7 (1.3),0.63
+" Brand name
+ (2)",Fixations,1.4 (2.5)," 1.4 (2.6)",0.97
+" Brand name
+ (2)",Time to first view,"
+ 1.5 (4.3)",0.8 (1.4),0.15
+Cowboy image (3),Dwell time,8.8 (4.8)," 7.7 (3.6)",0.07
+Cowboy image (3),Fixations," 6.5 (8.9)",4.4 (6.6),0.06
+Cowboy image (3),Time to first view," 0.1 (.13)"," 0.3 (1.3)",0.15
+Graphic image (4),Dwell time,--,4.2 (2.7),
+Graphic image (4),Fixations,--,4.9 (6.7,
+Graphic image (4),Time to first view,--,4.5 (3.1),
+Graphic image (5),Dwell time,--,6.9 (3.6),
+Graphic image (5),Fixations,--,2.6 (4.2),
+Graphic image (5),Time to first view,--,1.7 (1.3),
+Surgeon General’s warning (6),Dwell time,2.8 (2.2),--,
+Surgeon General’s warning (6),Fixations,2.6 (4.2),--,
+Surgeon General’s warning (6),Time to first view,3.4 (2.6),--,
+"FTC testing
+ statement
+ (7)",Dwell time,5.3 (4.1),--,
+"FTC testing
+ statement
+ (7)",Fixations,6.5 (8.6),--,
+"FTC testing
+ statement
+ (7)",Time to first view,3.1 (2.5),--,

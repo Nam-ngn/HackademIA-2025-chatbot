@@ -1,0 +1,106 @@
+import time
+start_time = time.time() # Start timer before all imports
+
+import glob
+import json
+import os
+from urllib.parse import urlparse
+from typing import List
+from src.rag_pipeline import RAGPipeline
+from create_parser import create_parser
+
+from src.impl import (
+    Datastore, 
+    Indexer, 
+    ResponseGenerator, 
+    Evaluator,
+    IntentAnalyzer,
+    FactsBoxInterpreter
+)
+
+
+DEFAULT_SOURCE_PATH = "sample_data/source/"
+DEFAULT_EVAL_PATH = "sample_data/eval/sample_questions.json"
+
+
+def create_pipeline() -> RAGPipeline:
+    """
+    Create and return a new RAG Pipeline instance with all components.
+    
+    This now includes:
+    - IntentAnalyzer: Analyzes user intention and context
+    - FactsBoxInterpreter: Retrieves and interprets FactsBox data
+    """
+    datastore = Datastore()
+    indexer = Indexer()
+    response_generator = ResponseGenerator()
+    evaluator = Evaluator()
+    intent_analyzer = IntentAnalyzer()
+    factsbox_interpreter = FactsBoxInterpreter(datastore=datastore)
+    
+    return RAGPipeline(
+        datastore=datastore,
+        indexer=indexer,
+        response_generator=response_generator,
+        intent_analyzer=intent_analyzer,
+        factsbox_interpreter=factsbox_interpreter,
+        evaluator=evaluator
+    )
+
+
+def main():
+    parser = create_parser()  # Create the CLI parser
+    args = parser.parse_args()
+    
+    pipeline = create_pipeline()
+
+    # Process source paths and eval path
+    source_path = args.path if args.path else DEFAULT_SOURCE_PATH
+    eval_path = args.eval_file if args.eval_file else DEFAULT_EVAL_PATH
+    document_paths = get_files_in_directory(source_path)
+
+    # Execute commands
+    if args.command in ["reset", "run"]:
+        print("🗑️  Resetting the database...")
+        pipeline.reset()
+
+    if args.command in ["add", "run"]:
+        if not document_paths:
+            print(f"⚠️  No documents found at path: {source_path}")
+            if args.command == "run":
+                return
+        else:
+            print(f"🔍 Adding documents: {', '.join(document_paths)}")
+            pipeline.add_documents(document_paths)
+
+    if args.command in ["evaluate", "run"]:
+        print(f"📊 Evaluating using questions from: {eval_path}")
+        with open(eval_path, "r") as file:
+            sample_questions = json.load(file)
+        pipeline.evaluate(sample_questions)
+
+    if args.command == "query":
+        response = pipeline.process_query(args.prompt)
+        print(f"✨ Response: {response}")
+
+
+def get_files_in_directory(source_path: str) -> List[str]:
+    if _is_url(source_path):
+        return [source_path]
+    if os.path.isfile(source_path):
+        return [source_path]
+    return glob.glob(os.path.join(source_path, "*"))
+
+
+def _is_url(path: str) -> bool:
+    try:
+        parsed = urlparse(path)
+    except ValueError:
+        return False
+    return parsed.scheme in ("http", "https") and bool(parsed.netloc)
+
+
+if __name__ == "__main__":
+    main()
+    end_time = time.time()
+    print(f"\n⏱️  Total time taken: {end_time - start_time:.2f} seconds")
