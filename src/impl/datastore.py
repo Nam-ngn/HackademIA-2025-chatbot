@@ -65,12 +65,14 @@ class Datastore(BaseDatastore):
             "source"
         ).when_matched_update_all().when_not_matched_insert_all().execute(entries)
 
-    def search(self, query: str, top_k: int = 5) -> List[str]:
+    def search(self, query: str, top_k: int = 5, limit: int = None) -> List[str]:
+        # Support both top_k and limit parameters for compatibility
+        result_limit = limit if limit is not None else top_k
         vector = self.get_vector(query)
         results = (
             self.table.search(vector)
             .select(["content", "source", "metadata"])
-            .limit(top_k)
+            .limit(result_limit)
             .to_list()
         )
 

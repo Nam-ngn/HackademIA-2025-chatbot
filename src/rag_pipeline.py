@@ -207,15 +207,40 @@ class RAGPipeline:
             has_comparison = groupe_controle and groupe_intervention
         
         if has_comparison:
+            # Extract key numbers from the text for cleaner display
+            def extract_key_info(text):
+                """Extract the most important number from risk text."""
+                if not text:
+                    return "N/A"
+                # Try to find percentage or fraction pattern
+                import re
+                # Look for pattern like "366 fumeurs sur 1078 (34%)"
+                match = re.search(r'\((\d+\.?\d*%)\)', text)
+                if match:
+                    return match.group(1)
+                # Look for "X sur Y" pattern
+                match = re.search(r'(\d+)\s+(?:fumeurs?\s+)?sur\s+(\d+)', text)
+                if match:
+                    numerator, denominator = match.groups()
+                    percentage = (int(numerator) / int(denominator)) * 100
+                    return f"{numerator}/{denominator} ({percentage:.1f}%)"
+                # Return first 30 chars if no pattern found
+                return text[:30] + "..." if len(text) > 30 else text
+            
+            controle_display = extract_key_info(str(groupe_controle))
+            intervention_display = extract_key_info(str(groupe_intervention))
+            
             # Table format with comparison
-            print("║ " + " " * 30 + "│ Sans intervention │ Avec intervention ║")
-            print("╟" + "─" * 30 + "┼" + "─" * 19 + "┼" + "─" * 19 + "╢")
-            print(f"║ {'Résultat observé':<29} │ {str(groupe_controle)[:17]:^17} │ {str(groupe_intervention)[:17]:^17} ║")
+            print("║ " + " " * 30 + "│  Groupe contrôle  │ Groupe intervention ║")
+            print("╟" + "─" * 30 + "┼" + "─" * 19 + "┼" + "─" * 21 + "╢")
+            print(f"║ {'Résultat observé':<29} │ {controle_display:^17} │ {intervention_display:^19} ║")
             
             if factsbox.additional_info.get("Risque_Relatif"):
-                risque_rel = str(factsbox.additional_info["Risque_Relatif"])[:17]
-                print("╟" + "─" * 30 + "┴" + "─" * 19 + "┴" + "─" * 19 + "╢")
-                print(f"║ {'Différence':<29} │ {risque_rel:^37} ║")
+                risque_rel = str(factsbox.additional_info["Risque_Relatif"])
+                # Extract key info from relative risk
+                rel_display = risque_rel[:50] + "..." if len(risque_rel) > 50 else risque_rel
+                print("╟" + "─" * 30 + "┴" + "─" * 19 + "┴" + "─" * 21 + "╢")
+                print(f"║ {'Différence relative':<29} │ {rel_display:^48} ║")
         
         # Benefits section
         if factsbox.benefits:
