@@ -1,202 +1,186 @@
-# Simple RAG Pipeline
+# Chatbot Prévention Tabac - HackademIA 2025
 
-This project is a beginner-friendly tutorial project for building a Retrieval Augmented Generation (RAG) system. It demonstrates how to index documents, retrieve relevant content, generate AI-powered responses, and evaluate results—all through a command line interface (CLI).
+> Un assistant conversationnel intelligent pour la prévention du tabagisme, basé sur RAG (Retrieval-Augmented Generation) avec support FactsBox pour une information claire et basée sur des preuves scientifiques.
 
-![rag-image](./rag-design-basic.png)
+##  Vue d'ensemble
 
-## Overview
+Ce projet développé lors du HackademIA 2025 est un chatbot spécialisé dans la prévention et l'arrêt du tabac qui combine :
+- **Recherche sémantique** dans une base de données d'études sur le tabagisme
+- **Analyse d'intention** pour comprendre les besoins de l'utilisateur
+- **FactsBox** : Présentation structurée des données sur les interventions anti-tabac (risques, bénéfices, efficacité)
+- **Génération de réponses** contextuelles via l'IA (OpenAI GPT-4)
+- **User Stories** pour illustrer les informations avec des cas concrets de fumeurs
 
-The RAG Framework lets you:
+## Fonctionnalités principales
 
-- **Index Documents:** Process and break documents (e.g., PDFs) into smaller, manageable chunks.
-- **Store & Retrieve Information:** Save document embeddings in a vector database (using LanceDB) and search using similarity.
-- **Generate Responses:** Use an AI model (via the OpenAI API) to provide concise answers based on the retrieved context.
-- **Evaluate Responses:** Compare the generated response against expected answers and view the reasoning behind the evaluation.
+### Système FactsBox
+Présentation claire et structurée des données médicales :
+- **Comparaison groupe contrôle vs intervention** dans un tableau visuel
+- **Risques relatifs et absolus** avec calculs automatiques
+- **Bénéfices et effets secondaires** sous forme de listes organisées
+- **Informations contextuelles** (population étudiée, durée, source)
+
+### Analyse d'intention intelligente
+Le système analyse automatiquement :
+- Le type de requête (information générale, FactsBox, médicale)
+- Le sujet principal de la question
+- Le niveau de confiance de l'analyse
+
+### User Stories
+Chaque réponse est accompagnée d'une histoire utilisateur concrète (2-3 phrases) pour faciliter la compréhension.
+
+### Interface Web moderne
+- Design responsive et épuré
+- Affichage des FactsBox en tableaux visuels
+- Section User Story distincte avec style dédié
+- Support Markdown pour les réponses
 
 ## Architecture
 
-- **Pipeline (src/rag_pipeline.py):**  
-  Orchestrates the process using:
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Interface Web                          │
+│                    (HTML + JavaScript)                      │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    FastAPI Server                           │
+│                  (src/server.py)                            │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    RAG Pipeline                             │
+│                (src/rag_pipeline.py)                        │
+├─────────────────────────────────────────────────────────────┤
+│  1. Intent Analyzer   → Analyse de l'intention utilisateur │
+│  2. FactsBox Interp.  → Récupération données structurées   │
+│  3. Response Gen.     → Génération réponse + User Story    │
+│  4. Datastore         → Recherche vectorielle (LanceDB)    │
+└─────────────────────────────────────────────────────────────┘
+```
 
-  - **Datastore:** Manages embeddings and vector storage.
-  - **Indexer:** Processes documents and creates data chunks. Two versions are available—a basic PDF indexer and one using the Docling package.
-  - **ResponseGenerator:** Generates answers by calling the AI service.
-  - **Evaluator:** Compares the AI responses to expected answers and explains the outcome.
+## Démarrage rapide
 
-- **Interfaces (interface/):**  
-  Abstract base classes define contracts for all components (e.g., BaseDatastore, BaseIndexer, BaseResponseGenerator, and BaseEvaluator), making it easy to extend or swap implementations.
+### Prérequis
+- Python 3.13 (recommandé)
+- Clé API OpenAI
+- Git
 
-## Installation
+### Installation
 
-### Prerequisites
+```bash
+# Cloner le repository
+git clone https://github.com/Nam-ngn/HackademIA-2025-chatbot.git
+cd HackademIA-2025-chatbot
 
-- **Python 3.12 or 3.13** (recommended)
-- Python 3.14 is **not supported** due to missing pre-built wheels for `pyclipper` (required by `docling`)
+# Créer l'environnement virtuel
+python -m venv .venv
 
-### Set Up a Virtual Environment (Recommended)
-
-**On Windows with PowerShell:**
-
-```powershell
-# Create virtual environment with Python 3.13
-py -3.13 -m venv .venv
-
-# Activate the environment
+# Activer l'environnement (Windows)
 .venv\Scripts\Activate.ps1
-```
 
-**On macOS/Linux:**
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-### Install Dependencies
-
-```powershell
-# Upgrade pip first
-python -m pip install --upgrade pip
-
-# Install all dependencies
+# Installer les dépendances
 pip install -r requirements.txt
-```
 
-**Note:** If you encounter C++ build errors with `lxml` or `pyclipper`, ensure you're using Python 3.12 or 3.13. Python 3.14 requires Microsoft C++ Build Tools which can be avoided by using an older Python version.
+# Configurer la clé API
+# Créer un fichier .env avec :
+OPENAI_API_KEY=votre_clé_api_ici
 
-### Configure Environment Variables
-
-We use OpenAI for the LLM (you can modify/replace it in `src/util/invoke_ai.py`). Make sure to set your OpenAI API key.
-
-**On Windows (PowerShell):**
-
-```powershell
-# Temporary (current session only)
-$env:OPENAI_API_KEY='your_openai_api_key'
-
-# Permanent (for your user account)
-[System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'your_openai_api_key', 'User')
-```
-
-**On macOS/Linux:**
-
-```bash
-export OPENAI_API_KEY='your_openai_api_key'
-```
-
-### Initialize the Database
-
-Before using the chatbot, you need to index your documents:
-
-```powershell
-# Reset/create the database
+# Indexer les données FactsBox (IMPORTANT)
 python main.py reset
-
-# Add documents from CSV
-python main.py add -p "sample_data/source/associations.csv"
+python main.py add -p "sample_data/source/factsbox_tabac.csv"
 ```
 
-This will index all 132 associations from the CSV file into the vector database.
-
-## Usage
-
-The CLI provides several commands to interact with the RAG pipeline. By default, they will use the source/eval paths specified in `main.py`, but there are flags to override them.
-
-```python
-DEFAULT_SOURCE_PATH = "sample_data/source/"
-DEFAULT_EVAL_PATH = "sample_data/eval/sample_questions.json"
-```
-
-#### Run the Full Pipeline
-
-This command resets the datastore, indexes documents, and evaluates the model.
+### Lancement
 
 ```bash
-python main.py run
-```
-
-#### Reset the Database
-
-Clears the vector database.
-
-```bash
-python main.py reset
-```
-
-#### Add Documents
-
-Index and embed documents. You can specify a file or directory path.
-
-```bash
-python main.py add -p "sample_data/source/"
-```
-
-To load the association catalogue specifically, point directly to the CSV file:
-
-```bash
-python main.py add -p "sample_data/source/associations.csv"
-```
-
-You can also ingest directly from your Prisma HTTP endpoint by passing a URL. Set the optional
-`PRISMA_API_TOKEN` environment variable if your service requires bearer authentication:
-
-```bash
-set PRISMA_API_TOKEN=your_token_here
-python main.py add -p "https://your-service.local/api/associations"
-```
-The endpoint must return either a JSON array of association objects or an object with a `data`
-array property.
-
-#### Query the Database
-
-Search for information using a query string.
-
-```bash
-python main.py query "What is the opening year of The Lagoon Breeze Hotel?"
-```
-
-#### Evaluate the Model
-
-Use a JSON file (with question/answer pairs) to evaluate the response quality.
-
-```bash
-python main.py evaluate -f "sample_data/eval/sample_questions.json"
-```
-
-## Deploy as an API
-
-For real-time usage on the web, start the FastAPI server which keeps the pipeline warm and reuses the same model clients across requests:
-
-```bash
+# Démarrer le serveur
 uvicorn src.server:app --host 0.0.0.0 --port 8000 --reload
+
+# Ouvrir l'interface web
+# Naviguer vers http://localhost:8000 ou ouvrir web/index.html
 ```
 
-### Scheduled Refresh
+Pour plus de détails sur l'installation, voir [install.md](install.md).
 
-To refresh LanceDB embeddings on a schedule, configure the Prisma endpoint via environment variables
-then run the helper script (ideal for cron or Windows Task Scheduler):
+## Structure du projet
 
+```
+chatbot/
+├── src/
+│   ├── impl/              # Implémentations concrètes
+│   │   ├── intent_analyzer.py      # Analyse d'intention
+│   │   ├── factsbox_interpreter.py # Extraction FactsBox
+│   │   ├── response_generator.py   # Génération réponses
+│   │   └── datastore.py            # LanceDB vector store
+│   ├── interface/         # Interfaces abstraites
+│   ├── rag_pipeline.py    # Orchestration du pipeline
+│   └── server.py          # API FastAPI
+├── sample_data/
+│   └── source/
+│       ├── factsbox_tabac.csv     # Données FactsBox tabac
+│       └── factsbox_medicales.csv # Données médicales
+├── web/
+│   └── index.html         # Interface utilisateur
+├── main.py               # Point d'entrée CLI
+└── requirements.txt      # Dépendances Python
+```
+
+## Utilisation
+
+### Via l'interface Web
+1. Ouvrir http://localhost:8000
+2. Poser une question sur le tabac ou l'arrêt du tabagisme
+3. Voir la réponse avec FactsBox (comparaison des interventions) et User Story
+
+### Via CLI
 ```bash
-set PRISMA_API_URL=https://your-service.local/api/associations
-python scripts/refresh_embeddings.py
+python main.py
+> Quels sont les effets des avertissements pictoriaux sur les paquets de cigarettes?
 ```
 
-### Example Request
+### Exemples de questions
+- "Quels sont les effets des avertissements pictoriaux sur le tabac ?"
+- "Quelle est l'efficacité des images choquantes sur les paquets de cigarettes ?"
+- "Comment les avertissements graphiques aident-ils à arrêter de fumer ?"
+- "Quels sont les bénéfices des images sur les paquets pour réduire le tabagisme ?"
 
-```bash
-curl -X POST "http://localhost:8000/query" \
-  -H "Content-Type: application/json" \
-  -d '{"prompt": "How's the life in Swan Lagoon?"}'
-```
+## Technologies utilisées
 
-The response includes both the generated answer and the time spent servicing the request. Add this endpoint behind your web front-end to keep latency low.
+- **Backend:** Python 3.13, FastAPI, LanceDB
+- **AI/ML:** OpenAI GPT-4, text-embedding-3-small
+- **Frontend:** HTML5, JavaScript (Vanilla), Marked.js
+- **Document Processing:** Docling, RapidOCR
+- **Data:** CSV, Vector embeddings
 
+## Format FactsBox
 
+Les FactsBox utilisent un format CSV standardisé avec colonnes :
+- `Nom` : Titre de l'intervention
+- `Risque_Absolu_Groupe_Controle` : Résultats groupe contrôle
+- `Risque_Absolu_Groupe_Intervention` : Résultats groupe intervention
+- `Risque_Relatif` : Différence relative
+- `Benefices` : Liste des bénéfices (séparés par `;`)
+- `Effets_Secondaires` : Liste des effets secondaires
+- `Population_Etudiee` : Caractéristiques de l'échantillon
+- `Duree_Etude` : Période de suivi
+- `Source_Etude` : Référence de l'étude
 
+## Contribution
 
-rappel : 
+Projet développé lors du HackademIA 2025.
 
+## License
 
- set the two env vars, test with python [main.py](http://_vscodecontentref_/6) add -p https://…, then automate python scripts/refresh_embeddings.py. Natural follow-ups: configure Windows Task Scheduler for your bi-weekly refresh, tighten CORS/rate limits before production, and plan secret storage (env vars today, vault later).
+Ce projet est un prototype éducatif développé dans le cadre d'un hackathon.
 
- 
+## Contact
+
+Pour plus d'informations sur le projet HackademIA 2025, consultez le repository.
+
+---
+
+**Avertissement**  
+Ce chatbot est un outil éducatif de prévention du tabagisme et ne remplace pas un avis médical professionnel. Pour un accompagnement personnalisé dans l'arrêt du tabac, consultez un professionnel de santé ou un tabacologue.
