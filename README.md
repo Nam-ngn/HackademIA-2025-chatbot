@@ -2,6 +2,8 @@
 
 > Un assistant conversationnel intelligent pour la prévention du tabagisme, basé sur RAG (Retrieval-Augmented Generation) avec support FactsBox pour une information claire et basée sur des preuves scientifiques.
 
+![Demo](demo.gif)
+
 ##  Vue d'ensemble
 
 Ce projet développé lors du HackademIA 2025 est un chatbot spécialisé dans la prévention et l'arrêt du tabac qui combine :
