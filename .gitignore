@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+brouillon.txt
+
 # Distribution / packaging
 .env*
 .Python
@@ -215,3 +217,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# LanceDB database files
+data/sample-lancedb/
