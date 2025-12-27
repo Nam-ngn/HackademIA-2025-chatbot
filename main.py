@@ -19,7 +19,7 @@ from src.impl import (
 )
 
 
-DEFAULT_SOURCE_PATH = "sample_data/source/"
+DEFAULT_SOURCE_PATH = "sample_data/tabac/"
 DEFAULT_EVAL_PATH = "sample_data/eval/sample_questions.json"
 
 

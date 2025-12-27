@@ -93,7 +93,7 @@ Before using the chatbot, you need to index your documents:
 python main.py reset
 
 # Add documents from CSV
-python main.py add -p "sample_data/source/associations.csv"
+python main.py add -p "sample_data/tabac/associations.csv"
 ```
 
 This will index all 132 associations from the CSV file into the vector database.
@@ -103,7 +103,7 @@ This will index all 132 associations from the CSV file into the vector database.
 The CLI provides several commands to interact with the RAG pipeline. By default, they will use the source/eval paths specified in `main.py`, but there are flags to override them.
 
 ```python
-DEFAULT_SOURCE_PATH = "sample_data/source/"
+DEFAULT_SOURCE_PATH = "sample_data/tabac/"
 DEFAULT_EVAL_PATH = "sample_data/eval/sample_questions.json"
 ```
 
@@ -128,13 +128,13 @@ python main.py reset
 Index and embed documents. You can specify a file or directory path.
 
 ```bash
-python main.py add -p "sample_data/source/"
+python main.py add -p "sample_data/tabac/"
 ```
 
 To load the association catalogue specifically, point directly to the CSV file:
 
 ```bash
-python main.py add -p "sample_data/source/associations.csv"
+python main.py add -p "sample_data/tabac/associations.csv"
 ```
 
 You can also ingest directly from your Prisma HTTP endpoint by passing a URL. Set the optional

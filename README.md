@@ -94,10 +94,10 @@ OPENAI_API_KEY=votre_clé_api_ici
 python main.py reset
 
 #Pour un fichier du répertoire
-python main.py add -p "sample_data/source/factsbox_tabac.csv"
+python main.py add -p "sample_data/tabac/factsbox_tabac.csv"
 
 #Pour tous les fichiers du répertoire
-python main.py add -p "sample_data/source"
+python main.py add -p "sample_data/tabac"
 ```
 
 ### Lancement
