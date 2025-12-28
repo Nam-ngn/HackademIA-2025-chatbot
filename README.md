@@ -1,17 +1,24 @@
-# Chatbot Prévention Tabac - HackademIA 2025
+# Chatbot FactsBox - HackademIA 2025
 
-> Un assistant conversationnel intelligent pour la prévention du tabagisme, basé sur RAG (Retrieval-Augmented Generation) avec support FactsBox pour une information claire et basée sur des preuves scientifiques.
+> Un assistant conversationnel intelligent multi-thématiques, basé sur RAG (Retrieval-Augmented Generation) avec support FactsBox pour une information claire et basée sur des preuves scientifiques.
 
 ![Demo](demo.gif)
 
 ##  Vue d'ensemble
 
-Ce projet développé lors du HackademIA 2025 est un chatbot spécialisé dans la prévention et l'arrêt du tabac qui combine :
-- **Recherche sémantique** dans une base de données d'études sur le tabagisme
+Ce projet développé lors du HackademIA 2025 est un chatbot spécialisé qui combine :
+- **Recherche sémantique** dans une base de données d'études scientifiques
 - **Analyse d'intention** pour comprendre les besoins de l'utilisateur
-- **FactsBox** : Présentation structurée des données sur les interventions anti-tabac (risques, bénéfices, efficacité)
+- **FactsBox** : Présentation structurée des données (risques, bénéfices, comparaisons)
 - **Génération de réponses** contextuelles via l'IA (OpenAI GPT-4)
-- **User Stories** pour illustrer les informations avec des cas concrets de fumeurs
+- **User Stories** pour illustrer les informations avec des cas concrets
+
+### Thématiques disponibles
+
+| Thématique | Description |
+|------------|-------------|
+| 🚬 **Tabac** | Prévention du tabagisme, avertissements pictoriaux, études sur l'arrêt du tabac |
+| 🎓 **UNIGE Santé** | Enquête santé étudiants 2019, comportements à risque, consommation d'alcool |
 
 ## Fonctionnalités principales
 
@@ -70,6 +77,17 @@ Chaque réponse est accompagnée d'une histoire utilisateur concrète (2-3 phras
 - Clé API OpenAI
 - Git
 
+### Thématiques disponibles
+
+Le chatbot supporte plusieurs thématiques avec des données FactsBox spécifiques :
+
+| Thématique | Dossier de données | Interface Web | Description |
+|------------|-------------------|---------------|-------------|
+| **Tabac** | `sample_data/tabac/` | `web/tabac.html` | Prévention du tabagisme, avertissements pictoriaux |
+| **UNIGE Santé** | `sample_data/unige/` | `web/unige.html` | Enquête santé étudiants, comportements à risque |
+
+Pour changer de thématique, indexez les données correspondantes (voir Installation).
+
 ### Installation
 
 ```bash
@@ -78,7 +96,7 @@ git clone https://github.com/Nam-ngn/HackademIA-2025-chatbot.git
 cd HackademIA-2025-chatbot
 
 # Créer l'environnement virtuel
-python -m venv .venv
+py -3.13 -m venv .venv
 
 # Activer l'environnement (Windows)
 .venv\Scripts\Activate.ps1
@@ -93,11 +111,17 @@ OPENAI_API_KEY=votre_clé_api_ici
 # Indexer les données FactsBox (IMPORTANT)
 python main.py reset
 
-#Pour un fichier du répertoire
-python main.py add -p "sample_data/tabac/factsbox_tabac.csv"
+#si cela ne marche pas
+pip install -r requirements.txt --force-reinstall
 
-#Pour tous les fichiers du répertoire
+# === CHOISIR UNE THÉMATIQUE ===
+
+# Option 1 : Thématique TABAC (prévention tabagisme)
 python main.py add -p "sample_data/tabac"
+
+# Option 2 : Thématique UNIGE (enquête santé étudiants)
+python main.py add -p "sample_data/unige"
+
 ```
 
 ### Lancement
@@ -106,8 +130,9 @@ python main.py add -p "sample_data/tabac"
 # Démarrer le serveur
 uvicorn src.server:app --host 0.0.0.0 --port 8000 --reload
 
-# Ouvrir l'interface web
-# Naviguer vers http://localhost:8000 ou ouvrir web/index.html
+# Ouvrir l'interface web selon la thématique :
+# - Tabac : http://localhost:8000/web/tabac.html
+# - UNIGE : http://localhost:8000/web/unige.html
 ```
 
 Pour plus de détails sur l'installation, voir [install.md](install.md).
@@ -126,11 +151,15 @@ chatbot/
 │   ├── rag_pipeline.py    # Orchestration du pipeline
 │   └── server.py          # API FastAPI
 ├── sample_data/
-│   └── source/
-│       ├── factsbox_tabac.csv     # Données FactsBox tabac
-│       └── factsbox_medicales.csv # Données médicales
+│   ├── tabac/             # 🚬 Thématique Tabac
+│   │   └── factsbox_tabac.csv
+│   ├── unige/             # 🎓 Thématique UNIGE Santé
+│   │   ├── factsbox_enquete.csv
+│   │   └── Etu2019-enquete-sante-risque.pdf
+│   └── eval/              # Données d'évaluation
 ├── web/
-│   └── index.html         # Interface utilisateur
+│   ├── tabac.html         # Interface thématique Tabac
+│   └── unige.html         # Interface thématique UNIGE
 ├── main.py               # Point d'entrée CLI
 └── requirements.txt      # Dépendances Python
 ```
@@ -138,21 +167,29 @@ chatbot/
 ## Utilisation
 
 ### Via l'interface Web
-1. Ouvrir http://localhost:8000
-2. Poser une question sur le tabac ou l'arrêt du tabagisme
-3. Voir la réponse avec FactsBox (comparaison des interventions) et User Story
+1. Démarrer le serveur : `uvicorn src.server:app --host 0.0.0.0 --port 8000 --reload`
+2. Ouvrir l'interface selon la thématique :
+   - 🚬 Tabac : http://localhost:8000/web/tabac.html
+   - 🎓 UNIGE : http://localhost:8000/web/unige.html
+3. Poser une question et voir la réponse avec FactsBox et User Story
 
 ### Via CLI
 ```bash
 python main.py
-> Quels sont les effets des avertissements pictoriaux sur les paquets de cigarettes?
+> Votre question ici
 ```
 
 ### Exemples de questions
+
+**🚬 Thématique Tabac :**
 - "Quels sont les effets des avertissements pictoriaux sur le tabac ?"
 - "Quelle est l'efficacité des images choquantes sur les paquets de cigarettes ?"
 - "Comment les avertissements graphiques aident-ils à arrêter de fumer ?"
-- "Quels sont les bénéfices des images sur les paquets pour réduire le tabagisme ?"
+- "Quels sont les bénéfices des images sur les paquets de cigarettes pour réduire le tabagisme ?"
+**🎓 Thématique UNIGE Santé :**
+- "Quel est le taux de blessures lors de sports extrêmes chez les étudiants ?"
+- "Compare la consommation d'alcool entre les étudiants prudents et à risque"
+- "Quels sont les comportements à risque des étudiants de l'UNIGE ?"
 
 ## Technologies utilisées
 
@@ -190,4 +227,4 @@ Pour plus d'informations sur le projet HackademIA 2025, consultez le repository.
 ---
 
 **Avertissement**  
-Ce chatbot est un outil éducatif de prévention du tabagisme et ne remplace pas un avis médical professionnel. Pour un accompagnement personnalisé dans l'arrêt du tabac, consultez un professionnel de santé ou un tabacologue.
+Ce chatbot est un outil éducatif basé sur des données scientifiques et ne remplace pas un avis médical professionnel. Pour un accompagnement personnalisé, consultez un professionnel de santé.
