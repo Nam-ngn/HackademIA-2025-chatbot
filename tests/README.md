@@ -22,7 +22,7 @@ améliorée par un retour concret sur un vrai jeu de données.
 
 -------------------------
 ### 2.Installer R et RStudio
----------------------------------
+
 - 2.1 Rendez-vous sur le site CRAN : https://cran.r-project.org/  
 - 2.2 Téléchargez la version adaptée à votre système d'exploitation (Windows, MacOS, Linux).  
 - 2.3 Installez R avec les options par défaut.  

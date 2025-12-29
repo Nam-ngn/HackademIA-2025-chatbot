@@ -216,6 +216,15 @@ Les FactsBox utilisent un format CSV standardisé avec colonnes :
 
 Projet développé lors du HackademIA 2025.
 
+## Tests et évaluation
+
+Le dossier `tests/` contient un pipeline de test développé en **Python** et **R** pour évaluer la qualité des réponses du chatbot EduRisk. Il permet de :
+- Valider les réponses générées par le système
+- Analyser la cohérence des données FactsBox
+- Évaluer la pertinence des informations retournées
+
+👉 **[Voir la documentation complète des tests](tests/README.md)**
+
 ## License
 
 Ce projet est un prototype éducatif développé dans le cadre d'un hackathon.
