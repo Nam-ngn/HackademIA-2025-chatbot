@@ -1,7 +1,7 @@
 # Pipeline de test pour EduRisk
-Auteur Daniel Nissille (groupe 3)
-Decembre 2025
-Dans le cadre du cours Open Science
+Auteur Daniel Nissille (groupe 3)<br>
+Decembre 2025<br>
+Dans le cadre du cours Open Science<br>  
 
 **Note importante**: Cette version est une ébauche et pourra être
 améliorée par un retour concret sur un vrai jeu de données.
