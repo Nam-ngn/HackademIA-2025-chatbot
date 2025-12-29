@@ -8,6 +8,7 @@ améliorée par un retour concret sur un vrai jeu de données.
 
 
 ## Guide d'installation et d'utilisation
+-------------------------
 
 ### 1.Installer Python
 
@@ -21,6 +22,7 @@ améliorée par un retour concret sur un vrai jeu de données.
 	python3 --version
 
 -------------------------
+
 ### 2.Installer R et RStudio
 
 - 2.1 Rendez-vous sur le site CRAN : https://cran.r-project.org/  
@@ -30,6 +32,7 @@ améliorée par un retour concret sur un vrai jeu de données.
 - 2.5 Téléchargez et installez la version gratuite (RStudio Desktop).
 
 -------------------------
+
 ### 3.Installer une librairie R non native.
 - 3.1 Ouvrez RStudio  
 - 3.2 dans la consol, tapez:
@@ -41,6 +44,7 @@ améliorée par un retour concret sur un vrai jeu de données.
 	library(effsize)
 
 -------------------------
+
 ### 4. Lancer le QCM en Python
 
 - 4.1 Ouvrez un terminal (ou PowerShell sur Windows).  
@@ -55,6 +59,7 @@ améliorée par un retour concret sur un vrai jeu de données.
 - 4.4 L'utilisateur est prêt pour effectuer le test.
 
 -------------------------
+
 ### 5 Lancer le script RStudio 
 
 - 5.1 Ouvrez RStudio.  
